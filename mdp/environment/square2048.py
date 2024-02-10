@@ -34,7 +34,8 @@ class square2048(Environment):
         self.action_set = self.config["action_set"]
 
     @staticmethod
-    def __merge_block_from_x2y(row: np.array, index_x: int, index_y: int) -> tuple[int, bool]:
+    def __merge_block_from_x2y(row: np.array, index_x: int, 
+                               index_y: int) -> tuple[int, bool]:
         if index_x == index_y:
             print("This should not happen: BUG!!!!!!!!!!!!!")
             breakpoint()
@@ -45,7 +46,8 @@ class square2048(Environment):
             return 1 << row[index_y], True
 
     @staticmethod
-    def __move_block_from_x2y(row: np.array, index_x: int, index_y: int) -> tuple[int, bool]:
+    def __move_block_from_x2y(row: np.array, index_x: int, 
+                              index_y: int) -> tuple[int, bool]:
         if index_x == index_y:
             return 0, False
         else:
