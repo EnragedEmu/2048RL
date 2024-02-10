@@ -2,7 +2,8 @@
 "environment": {
     "action_set": {"UP": 0, "DOWN": 1, "LEFT": 2, "RIGHT": 3},
     "square_size": 4,
-    "init_block_num": 2
+    "init_block_num": 2,
+    "np_dtype": "uint8"
 },
 "agent": {
     "gamma":0.9

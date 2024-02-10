@@ -13,6 +13,7 @@ class square2048(Environment):
         self.square_size = self.config['square_size']
         self.len = self.square_size * self.square_size
         self.initial_block_num = self.config['init_block_num']
+        self.np_dtype = getattr(np, self.config["np_dtype"])
 
         super().__init__(action_set=None, state_init=None,
                          episodic=True, state_terminal=[])
@@ -21,7 +22,7 @@ class square2048(Environment):
         state_init_index = np.random.choice(self.len, 
                                             self.initial_block_num, 
                                             replace=False)
-        self.state_init = np.zeros(self.len, dtype=np.uint8)
+        self.state_init = np.zeros(self.len, dtype=self.np_dtype)
         self.state_init[state_init_index] = 1
 
     def _set_action(self):
