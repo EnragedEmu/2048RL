@@ -42,6 +42,7 @@ class Environment(MDPModel):
         
         self.state_curr = self.state_init
         self.action_curr = None
+        self.state_dynamics = None
 
 
     def _set_action(self):
@@ -67,7 +68,7 @@ class Environment(MDPModel):
         return self.state_curr
 
 
-    def dynamics(self, action):
+    def dynamics_predict(self, action, state = None):
         '''
         Args
             action  -- action instance; currently received action from an agent
@@ -75,10 +76,8 @@ class Environment(MDPModel):
         현재 상태(self.state_curr)과 입력된 행동(action)을 이용해
         다음 상태(state_next)와 보상(reward_next)을 계산하는 함수입니다.
         '''
-        assert action in self.action_set.items()
-        state_next, reward_next = self._dynamics(action)
 
-        return state_next, reward_next
+        raise NotImplementedError
 
     def dynamics_(self, action):
         '''
@@ -91,14 +90,14 @@ class Environment(MDPModel):
         '''
 
         # 입력한 행동이 행동 집합에 포함되는지 확인하고, 최근 행동을 업데이트합니다.
-        assert action in self.action_set
+        assert action in self.action_set.values()
         self.action_curr = action
 
-        # self._dynamics()를 이용하여 state와 action에 맞는 다음 단계의 state와 action을 얻습니다.
-        state_next, reward_next = self._dynamics(self.state_curr, self.action_curr)
+        # self.state_dynamics has same reference of self.state_curr
+        self.state_dynamics = self.state_curr
 
-        # 현재 상태를 새로 얻은 상태값으로 변환합니다.
-        self.state_curr = state_next
+        # self._dynamics()를 이용하여 state와 action에 맞는 다음 단계의 state와 action을 얻습니다.
+        reward_next = self._dynamics(self.action_curr)
 
         return reward_next
 

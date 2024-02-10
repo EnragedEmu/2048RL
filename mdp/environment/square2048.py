@@ -33,6 +33,31 @@ class square2048(Environment):
     def _set_action(self):
         self.action_set = self.config["action_set"]
 
+    def dynamics_predict(self, action, state = None):
+        '''
+        Args
+            action  -- action instance; currently received action from an agent
+
+        현재 상태(self.state_curr)과 입력된 행동(action)을 이용해
+        다음 상태(state_next)와 보상(reward_next)을 계산하는 함수입니다.
+        '''
+        assert action in self.action_set.values()
+        if state is None:
+            self.state_dynamics = np.array(self.state_curr, dtype=self.np_dtype)
+        else:
+            self.state_dynamics = np.array(state, dtype=self.np_dtype)
+        reward_next = self._dynamics(action)
+
+        return self.state_dynamics, reward_next
+
+    
+    def _dynamics(self, action):
+        func_string = "move_" + list(self.action_set.keys())[action]
+        func = getattr(self, func_string)
+
+        return func()
+    
+
     @staticmethod
     def __merge_block_from_x2y(row: np.array, index_x: int, 
                                index_y: int) -> tuple[int, bool]:
@@ -84,10 +109,9 @@ class square2048(Environment):
         
         return row_reward, isChange
 
-    def move_LEFT_and_return_reward(self) -> tuple[int, bool]:
+    def move_LEFT(self) -> int:
         current_state = \
-            self.state_curr.reshape(self.square_size, self.square_size)
-        print(current_state)
+            self.state_dynamics.reshape(self.square_size, self.square_size)
         reward = 0
         isChange = False
         for i, row in enumerate(current_state):
@@ -95,33 +119,29 @@ class square2048(Environment):
             reward += row_reward
             isChange = isChange or row_isChange
         
-        print(f"{isChange = }, {reward = }")
-        print(current_state)
 
-        if not isChange:
-            assert reward == 0
-            return -1, isChange
-        else:
+        if isChange:
             self.__random_generate_one_block()
-            return reward, isChange
+            return reward
+        else:
+            assert reward == 0
+            return -1
 
     def __random_generate_one_block(self):
-        empty = np.where(self.state_curr == 0)
+        empty = np.where(self.state_dynamics == 0)
         if len(empty[0]) == 0:
             self.terminate()
         else:
             generate_index = np.random.choice(empty[0], 1)
-            self.state_curr[generate_index] = 1
+            self.state_dynamics[generate_index] = 1
 
     def terminate(self):
         print("terminate should be implemented")
 
-    def _dynamics(self, state, action):
-
-        pass
 
 
 if __name__ == "__main__":
     myclass = square2048()
     for i in range(9):
-        myclass.move_LEFT_and_return_reward()
+        print(myclass.state_curr.reshape(4, 4))
+        print("reward: " + str(myclass.dynamics_(2)) + "\n")
