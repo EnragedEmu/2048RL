@@ -28,28 +28,30 @@ class square2048(Environment):
         self.action_set = self.config["action_set"]
 
     @staticmethod
-    def __merge_block_from_x2y(row: np.array, index_x: int, index_y: int) -> int:
+    def __merge_block_from_x2y(row: np.array, index_x: int, index_y: int) -> tuple[int, bool]:
         if index_x == index_y:
             print("This should not happen: BUG!!!!!!!!!!!!!")
             breakpoint()
-            return 0
+            return 0, False
         else:
             row[index_y] += 1
             row[index_x] = 0
-            return 2 ^ row[index_y]
+            return 1 << row[index_y], True
 
     @staticmethod
-    def __move_block_from_x2y(row: np.array, index_x: int, index_y: int):
+    def __move_block_from_x2y(row: np.array, index_x: int, index_y: int) -> tuple[int, bool]:
         if index_x == index_y:
-            return
+            return 0, False
         else:
             row[index_y] = row[index_x]
             row[index_x] = 0
+            return 0, True
     
-    def __move_row_LEFT_reward(self, row: np.array) -> int:
+    def __move_row_LEFT_reward(self, row: np.array) -> tuple[int, bool]:
         curr_new_row_i = 0
         row_reward = 0
         merged_reward = 0
+        isChange = False
 
         for i in range(self.square_size):
             if row[i] == 0:
@@ -62,15 +64,18 @@ class square2048(Environment):
             )
 
             if check_merge:
-                merged_reward = \
+                merged_reward, column_change = \
                     self.__merge_block_from_x2y(row, i, curr_new_row_i - 1)
+                print(f"{merged_reward = }")
             else:
-                self.__move_block_from_x2y(i, curr_new_row_i)
-                merged_reward = 0
+                merged_reward, column_change = \
+                    self.__move_block_from_x2y(row, i, curr_new_row_i)
+                curr_new_row_i += 1
             
             row_reward += merged_reward
+            isChange = isChange or column_change
         
-        return row_reward
+        return row_reward, isChange
 
 
     def __move_row_LEFT(self, row: np.array):
@@ -98,14 +103,26 @@ class square2048(Environment):
         
         return new_row
     
-    def move_LEFT_and_return_reward(self):
+    def move_LEFT_and_return_reward(self) -> tuple[int, bool]:
         current_state = \
             self.state_curr.reshape(self.square_size, self.square_size)
         print(current_state)
         reward = 0
+        isChange = False
         for i, row in enumerate(current_state):
-            row_reward = self.__move_row_LEFT_reward(row)
+            row_reward, row_isChange = self.__move_row_LEFT_reward(row)
             reward += row_reward
+            isChange = isChange or row_isChange
+        
+        print(f"{isChange = }, {reward = }")
+        print(current_state)
+
+        if not isChange:
+            assert reward == 0
+            return -1, isChange
+        else:
+            self.__random_generate_one_block()
+            return reward, isChange
 
 
     def move_LEFT_and_return_isChange(self):
@@ -116,19 +133,18 @@ class square2048(Environment):
         for i, row in enumerate(current_state):
             tmp = np.array(row)
             current_state[i] = self.__move_row_LEFT(row)
-            if not isChange and (tmp != row).any():
-                isChange = True
+            isChange = isChange or (tmp != row).any()
         print(isChange)
 
         print(current_state)
         if (not isChange):
             return isChange
 
-        self.__generate_one_block()
+        self.__random_generate_one_block()
 
         return isChange
 
-    def __generate_one_block(self):
+    def __random_generate_one_block(self):
         empty = np.where(self.state_curr == 0)
         if len(empty[0]) == 0:
             self.terminate()
@@ -147,4 +163,4 @@ class square2048(Environment):
 if __name__ == "__main__":
     myclass = square2048()
     for i in range(9):
-        myclass.move_LEFT_and_return_isChange()
+        myclass.move_LEFT_and_return_reward()
