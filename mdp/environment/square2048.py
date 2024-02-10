@@ -66,7 +66,6 @@ class square2048(Environment):
             if check_merge:
                 merged_reward, column_change = \
                     self.__merge_block_from_x2y(row, i, curr_new_row_i - 1)
-                print(f"{merged_reward = }")
             else:
                 merged_reward, column_change = \
                     self.__move_block_from_x2y(row, i, curr_new_row_i)
@@ -77,32 +76,6 @@ class square2048(Environment):
         
         return row_reward, isChange
 
-
-    def __move_row_LEFT(self, row: np.array):
-        new_row = np.zeros(self.square_size, dtype=np.uint8)
-        curr_new_row_i = 0
-        just_merged = False
-
-        for i in range(self.square_size):
-            if row[i] == 0:
-                continue
-
-            check_merge = all(
-                [not just_merged, 
-                curr_new_row_i > 0, 
-                new_row[curr_new_row_i - 1] == row[i]]
-            )
-
-            if  check_merge:
-                new_row[curr_new_row_i - 1] += 1
-                just_merged = True
-            else:
-                new_row[curr_new_row_i] = row[i]
-                just_merged = False
-                curr_new_row_i += 1
-        
-        return new_row
-    
     def move_LEFT_and_return_reward(self) -> tuple[int, bool]:
         current_state = \
             self.state_curr.reshape(self.square_size, self.square_size)
@@ -123,26 +96,6 @@ class square2048(Environment):
         else:
             self.__random_generate_one_block()
             return reward, isChange
-
-
-    def move_LEFT_and_return_isChange(self):
-        current_state = \
-            self.state_curr.reshape(self.square_size, self.square_size)
-        print(current_state)
-        isChange = False
-        for i, row in enumerate(current_state):
-            tmp = np.array(row)
-            current_state[i] = self.__move_row_LEFT(row)
-            isChange = isChange or (tmp != row).any()
-        print(isChange)
-
-        print(current_state)
-        if (not isChange):
-            return isChange
-
-        self.__random_generate_one_block()
-
-        return isChange
 
     def __random_generate_one_block(self):
         empty = np.where(self.state_curr == 0)
