@@ -9,10 +9,15 @@ class square2048(Environment):
             self.config = json.load(f)["environment"]
         print("----initializing environment: square2048------")
         print(self.config)
-        print("-" * 50)
+        print("-" * 50 + '\n')
         self.square_size = self.config['square_size']
         self.len = self.square_size * self.square_size
         self.initial_block_num = self.config['init_block_num']
+        
+        if self.initial_block_num > self.len:
+            print("init_block_num is too big.\n Resizing it to 2\n")
+            self.initial_block_num = 2
+
         self.np_dtype = getattr(np, self.config["np_dtype"])
 
         super().__init__(action_set=None, state_init=None,
