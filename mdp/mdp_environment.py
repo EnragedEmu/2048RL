@@ -76,7 +76,7 @@ class Environment(MDPModel):
         다음 상태(state_next)와 보상(reward_next)을 계산하는 함수입니다.
         '''
         assert action in self.action_set.items()
-        state_next, reward_next = self._dynamics(self.state_curr, action)
+        state_next, reward_next = self._dynamics(action)
 
         return state_next, reward_next
 
@@ -102,7 +102,7 @@ class Environment(MDPModel):
 
         return reward_next
 
-    def _dynamics(self, state, action):
+    def _dynamics(self, action):
         '''
         Args
             state   -- state instance; an arbitrary state for testing
