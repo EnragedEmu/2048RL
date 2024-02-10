@@ -7,9 +7,9 @@ class square2048(Environment):
     def __init__(self):
         with open(__file__.replace('py', 'json'), 'r') as f:
             self.config = json.load(f)["environment"]
-        print("----initializing environment: square2048------")
+        print("----initializing environment: square2048----")
         print(self.config)
-        print("-" * 50 + '\n')
+        print('\n')
         self.square_size = self.config['square_size']
         self.len = self.square_size * self.square_size
         self.initial_block_num = self.config['init_block_num']
