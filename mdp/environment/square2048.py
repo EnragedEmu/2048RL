@@ -137,11 +137,22 @@ class square2048(Environment):
 
     def terminate(self):
         print("terminate should be implemented")
-
+    
+    def visualize_state(self):
+        state = self.state_curr.reshape(self.square_size,
+                                        self.square_size)
+        print(" " + "- " * self.square_size + " ")
+        for row in state:
+            print("|", end='')
+            for col in row:
+                real = ' ' if col == 0 else 1 << col
+                print(real, end= ' ')
+            print("|")
+        print(" " + "- " * self.square_size + " ")
 
 
 if __name__ == "__main__":
     myclass = square2048()
     for i in range(9):
-        print(myclass.state_curr.reshape(4, 4))
+        myclass.visualize_state()
         print("reward: " + str(myclass.dynamics_(2)) + "\n")
