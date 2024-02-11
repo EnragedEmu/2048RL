@@ -102,11 +102,9 @@ class square2048(Environment):
             if row[i] == 0:
                 continue
 
-            check_merge = all(
-                [merged_reward == 0,
-                 curr_new_row_i > 0,
-                 row[curr_new_row_i - 1] == row[i]]
-            )
+            check_merge = (merged_reward == 0) \
+                and (curr_new_row_i > 0) \
+                and (row[curr_new_row_i - 1] == row[i])
 
             if check_merge:
                 merged_reward, column_change = \
@@ -165,7 +163,7 @@ class square2048(Environment):
         reward = 0
         isChange = False
         for i, row in enumerate(current_state):
-            row_reward, row_isChange = self.__move_row_RIGHT(row)
+            row_reward, row_isChange = self.__move_row_LEFT(row)
             reward += row_reward
             isChange = isChange or row_isChange
         
