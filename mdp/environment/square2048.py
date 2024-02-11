@@ -52,10 +52,27 @@ class square2048(Environment):
 
     
     def _dynamics(self, action):
-        func_string = "move_" + list(self.action_set.keys())[action]
+        # choose a function depending on the input action
+        func_string = "_move_row_" + list(self.action_set.keys())[action]
         func = getattr(self, func_string)
 
-        return func()
+        # Move
+        current_state = \
+            self.state_dynamics.reshape(self.square_size, self.square_size)
+        reward = 0
+        isChange = False
+        for i, row in enumerate(current_state):
+            row_reward, row_isChange = func(row)
+            reward += row_reward
+            isChange = isChange or row_isChange
+        
+        # Generate random block
+        if isChange:
+            self.__random_generate_one_block()
+            return reward
+        else:
+            assert reward == 0
+            return -1
     
 
     @staticmethod
@@ -80,7 +97,7 @@ class square2048(Environment):
             row[index_x] = 0
             return 0, True
     
-    def __move_row_LEFT(self, row: np.array) -> tuple[int, bool]:
+    def _move_row_LEFT(self, row: np.array) -> tuple[int, bool]:
         """ A function that moves all the blocks in a row left 
         and return reward and whether there is a change
 
@@ -156,24 +173,6 @@ class square2048(Environment):
             isChange = isChange or column_change
         
         return row_reward, isChange
-
-    def move_LEFT(self) -> int:
-        current_state = \
-            self.state_dynamics.reshape(self.square_size, self.square_size)
-        reward = 0
-        isChange = False
-        for i, row in enumerate(current_state):
-            row_reward, row_isChange = self.__move_row_LEFT(row)
-            reward += row_reward
-            isChange = isChange or row_isChange
-        
-
-        if isChange:
-            self.__random_generate_one_block()
-            return reward
-        else:
-            assert reward == 0
-            return -1
 
     def __random_generate_one_block(self):
         empty = np.where(self.state_dynamics == 0)
