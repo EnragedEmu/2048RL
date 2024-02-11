@@ -80,7 +80,19 @@ class square2048(Environment):
             row[index_x] = 0
             return 0, True
     
-    def __move_row_LEFT_reward(self, row: np.array) -> tuple[int, bool]:
+    def __move_row_LEFT(self, row: np.array) -> tuple[int, bool]:
+        """ A function that moves all the blocks in a row left 
+        and return reward and whether there is a change
+
+        Args:
+            row: 1d numpy array.
+        
+        Returns:
+            row_reward: the sum of all rewards in a row after merged.
+            isChange: a boolean type whether there is any change to 
+                all blocks in a row. This is used to determine generating
+                random blocks after movement.
+        """
         curr_new_row_i = 0
         row_reward = 0
         merged_reward = 0
@@ -115,7 +127,7 @@ class square2048(Environment):
         reward = 0
         isChange = False
         for i, row in enumerate(current_state):
-            row_reward, row_isChange = self.__move_row_LEFT_reward(row)
+            row_reward, row_isChange = self.__move_row_LEFT(row)
             reward += row_reward
             isChange = isChange or row_isChange
         
