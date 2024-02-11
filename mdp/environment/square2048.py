@@ -210,6 +210,6 @@ if __name__ == "__main__":
     myclass = square2048()
     action_set = myclass.action_set
     for i in range(9):
-        for action in ["UP", "DOWN"]:
+        for action in action_set.keys():
             myclass.visualize_state()
             print(f"{action} | reward: {myclass.dynamics_(action_set[action])}\n")
