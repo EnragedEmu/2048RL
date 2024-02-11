@@ -136,7 +136,7 @@ class square2048(Environment):
         
         return row_reward, isChange
 
-    def __move_row_RIGHT(self, row: np.array) -> tuple[int, bool]:
+    def _move_row_RIGHT(self, row: np.array) -> tuple[int, bool]:
         """ A function that moves all the blocks in a row right 
         and return reward and whether there is a change
 
@@ -200,6 +200,8 @@ class square2048(Environment):
 
 if __name__ == "__main__":
     myclass = square2048()
+    action_set = myclass.action_set
     for i in range(9):
-        myclass.visualize_state()
-        print("reward: " + str(myclass.dynamics_(2)) + "\n")
+        for action in ["LEFT", "RIGHT"]:
+            myclass.visualize_state()
+            print(f"{action} | reward: {myclass.dynamics_(action_set[action])}\n")
