@@ -121,13 +121,51 @@ class square2048(Environment):
         
         return row_reward, isChange
 
+    def __move_row_RIGHT(self, row: np.array) -> tuple[int, bool]:
+        """ A function that moves all the blocks in a row right 
+        and return reward and whether there is a change
+
+        Args:
+            row: 1d numpy array.
+        
+        Returns:
+            row_reward: the sum of all rewards in a row after merged.
+            isChange: a boolean type whether there is any change to 
+                all blocks in a row. This is used to determine generating
+                random blocks after movement.
+        """
+        curr_new_row_i = self.square_size - 1
+        row_reward = 0
+        merged_reward = 0
+        isChange = False
+
+        for i in range(self.square_size - 1, -1, -1):
+            if row[i] == 0:
+                continue
+
+            check_merge = (merged_reward == 0) \
+                and (curr_new_row_i + 1 < self.square_size) \
+                and (row[curr_new_row_i + 1] == row[i])
+            if check_merge:
+                merged_reward, column_change = \
+                    self.__merge_block_from_x2y(row, i, curr_new_row_i + 1)
+            else:
+                merged_reward, column_change = \
+                    self.__move_block_from_x2y(row, i, curr_new_row_i)
+                curr_new_row_i -= 1
+            
+            row_reward += merged_reward
+            isChange = isChange or column_change
+        
+        return row_reward, isChange
+
     def move_LEFT(self) -> int:
         current_state = \
             self.state_dynamics.reshape(self.square_size, self.square_size)
         reward = 0
         isChange = False
         for i, row in enumerate(current_state):
-            row_reward, row_isChange = self.__move_row_LEFT(row)
+            row_reward, row_isChange = self.__move_row_RIGHT(row)
             reward += row_reward
             isChange = isChange or row_isChange
         
