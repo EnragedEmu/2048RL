@@ -53,18 +53,26 @@ class square2048(Environment):
     
     def _dynamics(self, action):
         # choose a function depending on the input action
-        func_string = "_move_row_" + list(self.action_set.keys())[action]
-        func = getattr(self, func_string)
+        if (action == self.action_set["LEFT"]) or (action == self.action_set["UP"]):
+            func = self._move_row_LEFT
+        else:
+            func = self._move_row_RIGHT
 
         # Move
         current_state = \
             self.state_dynamics.reshape(self.square_size, self.square_size)
+        if (action == self.action_set["UP"]) or (action == self.action_set["DOWN"]):
+            current_state = current_state.T
+
         reward = 0
         isChange = False
         for i, row in enumerate(current_state):
             row_reward, row_isChange = func(row)
             reward += row_reward
             isChange = isChange or row_isChange
+        
+        if (action == self.action_set["UP"]) or (action == self.action_set["DOWN"]):
+            current_state = current_state.T
         
         # Generate random block
         if isChange:
@@ -202,6 +210,6 @@ if __name__ == "__main__":
     myclass = square2048()
     action_set = myclass.action_set
     for i in range(9):
-        for action in ["LEFT", "RIGHT"]:
+        for action in ["UP", "DOWN"]:
             myclass.visualize_state()
             print(f"{action} | reward: {myclass.dynamics_(action_set[action])}\n")
